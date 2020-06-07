@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+     .bar:hover{
+        fill: red;
+     }
+     body{
+         text-align: center;
+         background-color: salmon;
+     }
+     
+    
+    </style>
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <title id="title">United States GDP</title>
+  </head>
+  <body>
+      <div class="container">
+    <h1>United States GDP</h1>
+  </div>
+    <script>
+     fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json").then(response => response.json()).then(
+      function(datas){
+          const dataset = datas.data;
+          const w = 1000;
+          const h = 700;
+
+          const padding = 60;
+    
+    var date = dataset.map(function (item) {
+    return item[0];
+    });
+    var yearMax = new Date(d3.max(date))
+    var yearMin = new Date(d3.min(date))
+    console.log(yearMax + ","+yearMin)
+    var xScale = d3.scaleTime().
+    domain([yearMin,yearMax]).
+     range([padding, w  + padding]);
+
+    const yScale = d3.scaleLinear()
+                     .domain([0, d3.max(dataset, (d) => d[1])])
+                     .range([h - padding, padding]);
+
+    const svg = d3.select("body")
+                  .append("svg")
+                  .attr("width", w)
+                  .attr("height", h);
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+    svg.append("g")
+       .attr("transform", "translate(0," + (h - padding) + ")").attr("id","x-axis")
+       .call(xAxis);
+    svg.append("g")
+        .attr("transform","translate(60,0)").call(yAxis).attr("id","y-axis")
+    var scaledGDP = [];
+    var GDP = dataset.map(function (item) {
+    return item[1];
+  });
+    
+
+    var gdpMin = d3.min(GDP);
+    var gdpMax = d3.max(GDP);
+
+    var linearScale = d3.scaleLinear().
+    domain([0, gdpMax]).
+    range([0, h-padding*2]);
+
+    scaledGDP = GDP.map(function (item) {
+    return linearScale(item);
+  });
+  var tooltip = d3.select(".visHolder").append("div").
+    attr("id", "tooltip").
+    style("opacity", 0);
+
+
+    svg.selectAll("rect")
+       .data(scaledGDP)
+       .enter()
+       .append("rect")
+       .attr('x', function (d, i) {
+    return xScale(new Date(date[i]));
+  })
+       .attr("y", (d, i) => h - d - padding)
+       .attr("width", 2)
+       .attr("height", (d, i) => d)
+       .attr("fill", "rgb(33,33,33)")
+       .attr("class", "bar")
+       .attr("data-date",(d,i) => date[i])
+       .attr("data-gdp",(d,i) => GDP[i])
+       .append("title")
+       .attr("data-date",(d,i) => date[i])
+       .text((d,i) => date[i])
+       
+       
+
+       var e=document.querySelector("#x-axis");
+        var t=document.querySelectorAll(".bar");
+        var r=e.querySelectorAll(".tick");      
+      })
+         
+    </script>
+    </div>
+  </body>
+</html>
